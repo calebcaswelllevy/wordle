@@ -33,7 +33,3 @@ class LetterBank:
                 self.letter_status[letter1] = 'yellow'
             else:
                 self.letter_status[letter1] = 'gray'
-
-
-letterbank = LetterBank('howdy')
-print(letterbank.get_letters())

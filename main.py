@@ -82,19 +82,13 @@ def main():
         x_locations = x_locations_top_and_middle + x_locations_bottom
         y_locations = list(np.linspace(10, 125, 3))
         y_locations = [y_locations[0]] * 9 + [y_locations[1]] * 9 + [y_locations[2]] * 8
-        [print(loc) for loc in y_locations]
-        #print(y_locations)
-        #coords = [(x, y) for x, y in zip(x_locations, y_locations)]
-        coords = []
-        #put coordinates into tuples
 
 
 
         #draw the letters
         letter_boxes = {}
         for letter, x, y in zip(letter_bank.get_letters(), x_locations, y_locations):
-            print(f'{letter} displayed at ({x}, {y})')
-            print(f'letter status: {letter_bank.get_letter_status(letter)}')
+
             letter_boxes[letter] = canvas.create_rectangle( x, y,
                                                             x + 40, y + 40,
                                                             fill=letter_bank.get_letter_status(letter),
@@ -116,7 +110,6 @@ def main():
 
         global target_word
         target_word = random.choice(tuple(valid_words))
-        print(f'Target word is now {target_word}')
         message_box.config(text=f"{user}'s Wordle \n\n")
         record_display.config(text=f"Win Percentage: {round(np.mean(record[user]['record']) * 100, 1)}")
         average_tries_display.config(text=f"   Average Tries:     {round(np.mean(record[user]['num_tries']), 1)}")
@@ -149,6 +142,7 @@ def main():
             msg = 'Invalid Word, please try again'
         elif word == target_word:
             render_word( word, guess_number)
+            render_letter_bank(word, letter_bank, letter_holder)
             msg = f'You Guessed It!!!\n' \
                   f' It was {target_word}'
             record[user]['record'].append(1)
@@ -181,8 +175,6 @@ def main():
     def render_word(word, guess_number):
         #global guess_number
         y_index = guess_number * 80
-        print(f'guess_number = {guess_number}')
-
         for index, (x_start, letter) in enumerate(zip(locations, word)):
                 if letter == target_word[index]:
                     #draw a green rectangle
@@ -227,7 +219,6 @@ def main():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print(letter_bank.get_letters())
     main()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
