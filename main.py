@@ -16,9 +16,12 @@ from letters import LetterBank
 guess_number = 0
 target_word = ''
 letter_bank = LetterBank('target_word')
-def main():
-    global target_word
-    #global letter_bank
+
+def start_up():
+    """
+
+    :return:
+    """
     try:
         user = sys.argv[1].lower()
     except:
@@ -42,7 +45,14 @@ def main():
             'record' : [1],
             'num_tries' : [1]
         }
+    return user, record
+
+def main():
+    global target_word
+    #global letter_bank
+    user, record = start_up()
     # initialize frame:
+
     root = Tk()
     root.title("Wordle")
     root.geometry('725x700')
@@ -55,6 +65,7 @@ def main():
     entry_box.grid(columnspan=3, column=1, row = 0, padx = 10, pady=10)
     canvas = Canvas(frm, width = 400, height = 400)
     canvas.grid(row = 3, column= 1, columnspan=3)
+
     message_holder = LabelFrame(root)
     message_holder.place(x=450, y = 100, width= 270, height = 150)
     message_box = Label(message_holder, font = ('Helvetica', 20))
@@ -90,10 +101,10 @@ def main():
         for letter, x, y in zip(letter_bank.get_letters(), x_locations, y_locations):
 
             letter_boxes[letter] = canvas.create_rectangle( x, y,
-                                                            x + 40, y + 40,
+                                                            x + 45, y + 45,
                                                             fill=letter_bank.get_letter_status(letter),
                                                             outline='white')
-            canvas.create_text(x+20, y+20, text=letter, font=('Helvetica', 36), fill='black')
+            canvas.create_text(x+23, y+25, text=letter.upper(), font=('Helvetica', 36), fill='black')
 
 
     def draw_board():
@@ -110,7 +121,7 @@ def main():
 
         global target_word
         target_word = random.choice(tuple(valid_words))
-        message_box.config(text=f"{user}'s Wordle \n\n")
+        message_box.config(text=f"{user.capitalize()}'s Wordle \n\n")
         record_display.config(text=f"Win Percentage: {round(np.mean(record[user]['record']) * 100, 1)}")
         average_tries_display.config(text=f"   Average Tries:     {round(np.mean(record[user]['num_tries']), 1)}")
 
@@ -133,7 +144,7 @@ def main():
 
         global guess_number
         #print(f'guess nu ber: {guess_number}')
-        word = entry_box.get()
+        word = entry_box.get().lower()
         entry_box.delete(0, END)
 
         if len(word) != 5:

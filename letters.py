@@ -14,7 +14,9 @@ class LetterBank:
         self.letter_status[letter] = status
 
     def get_letter_status(self, letter):
+
         return self.letter_status[letter]
+
 
     def reset(self, target):
         self.letter_status = {letter : "white" for letter in self.letters}
