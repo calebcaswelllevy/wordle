@@ -3342,7 +3342,6 @@ gorge
 combo
 alpha
 overt
-kinda
 spelt
 prick
 nobly
@@ -4539,7 +4538,6 @@ harks
 naves
 tufas
 morph
-agone
 nooky
 alkyl
 apnea

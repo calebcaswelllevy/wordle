@@ -51,11 +51,12 @@ def main():
     global target_word
     #global letter_bank
     user, record = start_up()
+
     # initialize frame:
 
     root = Tk()
     root.title("Wordle")
-    root.geometry('725x700')
+    root.geometry('725x770')
     frm = ttk.Frame(root, padding=0)
     frm.grid()
 
@@ -63,7 +64,7 @@ def main():
     placeholder.grid(column=0, row=0)
     entry_box = Entry(frm, width = 29, borderwidth=5, font = ('Helvetica', 20))
     entry_box.grid(columnspan=3, column=1, row = 0, padx = 10, pady=10)
-    canvas = Canvas(frm, width = 400, height = 400)
+    canvas = Canvas(frm, width = 400, height = 470)
     canvas.grid(row = 3, column= 1, columnspan=3)
 
     message_holder = LabelFrame(root)
@@ -81,7 +82,7 @@ def main():
     letter_holder = Canvas(root,
                            width="550",
                            height="170")
-    letter_holder.place(x=20, y=510)
+    letter_holder.place(x=20, y=580)
     letter_holder.config(background='gray')
 
     def render_letter_bank(new_word, letter_bank, canvas):
@@ -108,11 +109,12 @@ def main():
 
 
     def draw_board():
-        locations = np.arange(0, 321, 80)
+        x_locations = np.arange(0, 321, 80)
+        y_locations = np.arange(0, 410, 80)
         rectangles = {}
-        for x_start in locations:
+        for x_start in x_locations:
             rectangles[x_start] = {}
-            for y_start in locations:
+            for y_start in y_locations:
                 rectangles[x_start][y_start] = canvas.create_rectangle(x_start, y_start, x_start + 60, y_start + 60,
                                                                        fill='beige', outline='white')
         return rectangles
@@ -165,7 +167,7 @@ def main():
         else:
             render_word( word, guess_number)
             render_letter_bank(word, letter_bank, letter_holder)
-            if guess_number == 4:
+            if guess_number == 5:
                 msg = f'Game Over!\n\nThe word was {target_word}'
                 record[user]['record'].append(0)
                 record[user]['num_tries'].append(5)
@@ -179,7 +181,7 @@ def main():
 
 
 
-        message_box.config(text=f"Madison's Wordle \n\n{msg}")
+        message_box.config(text=f"{user}'s Wordle \n\n{msg}")
 
     enter_word_partial = partial(enter_word, guess_number)
 
@@ -196,8 +198,10 @@ def main():
                 canvas.create_text((x_start + 30, y_index + 37), text=letter, font = ('Helvetica', 40), fill = 'black')
 
     #get the words
-    valid_words = get_words()
-    target_word = random.choice(tuple(valid_words))
+
+    valid_words = get_words(guess = True)
+    target_words = get_words(guess = False)
+    target_word = random.choice(tuple(target_words))
 
 
 
