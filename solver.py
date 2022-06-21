@@ -5,14 +5,18 @@ from getWordlist import get_words
 import numpy as np
 
 class Solver:
-    def __init__(self, target):
+    def __init__(self, target, letter_bank = None):
         self.target = target
         self.valid_words = get_words(guess=False)
-        self.letter_bank = letters.LetterBank(target)
+        if not letter_bank:
+            self.letter_bank = letters.LetterBank(target)
+        else:
+            self.letter_bank = letter_bank
         self.guessed_words = ''
         self.possible_choices = []
         self.known_letters = ['']*5
         self.letters_not_at_locus = [[],[],[],[],[]]
+        self.letters_in_word = set()
 
 
     def find_candidates(self, word_choices:list) -> list:
@@ -28,7 +32,12 @@ class Solver:
             #check if letter not at that index
             if self.known_letters[index] and letter != self.known_letters[index]:
                 return False
+            #check if a letter is known not to be at a locus
             if self.letters_not_at_locus[index] and letter in self.letters_not_at_locus[index]:
+                return False
+        #check if a letter known to be in the word is missing
+        for letter in  self.letters_in_word:
+            if not letter in word:
                 return False
         return True
 
@@ -119,53 +128,46 @@ class Solver:
         for index, (letter1, letter2) in enumerate(zip(guess, target)):
             if letter1 != letter2:
                 self.letters_not_at_locus[index].append(letter1)
-
+    def update_letters_in_word(self, guess):
+        for letter in guess:
+            if self.letter_bank.get_letter_status(letter) == 'yellow' and not letter in self.letters_in_word:
+                self.letters_in_word.add(letter)
     def update_guessed_words(self, word):
         self.guessed_words += word
 
 
 class Hinter(Solver):
-    def __init__(self, green_letters, yellow_letters, black_letters):
-        Solver(self)
-        self.letter_bank =
-
-    def enter_guess(self, word:str, letter_status: dict) -> None:
+    def __init__(self, target = None):
         pass
+    def enter_guess(self, word:str, letter_status: dict) -> None:
         # update guessed words
+        self.guessed_words += word
 
         # update letter bank
+        for index, (letter, status) in enumerate(letter_status.items()):
+            self.letter_bank.set_letter_status(letter, status)
 
-        #
+            #update known letters:
+            if status == "green":
+                self.known_letters[index] = letter
+            elif status == "yellow":
+                self.letters_not_at_locus[index] = letter
+
+    def hint(self, n):
+        candidates = self.find_candidates(self.valid_words)
+        let_dis = self.get_letter_distributions(candidates)
+        best_word = self.find_best_word(let_dis, candidates, n)
+        return best_word
 
 
 
 
-'''
-s.letter_bank.update_letter_status('their')
-s.letter_bank.update_letter_status('moans')
 
-candidates = s.find_candidates(s.valid_words)
-let_dis = s.get_letter_distributions(candidates)
-print(let_dis)
-best_word = s.find_best_word( let_dis, candidates)
-print(best_word)
-s.letter_bank.update_letter_status('cooed')
-candidates = s.find_candidates(s.valid_words)
-let_dis = s.get_letter_distributions(candidates)
-print(let_dis)
-best_word = s.find_best_word(let_dis, candidates)
-print(best_word)
 
-s.letter_bank.update_letter_status(best_word)
-candidates = s.find_candidates(s.valid_words)
-let_dis = s.get_letter_distributions(candidates)
-print(let_dis)
-best_word = s.find_best_word(let_dis, candidates)
-print(best_word)
-'''
 def test():
     record = []
     num_tries = []
+    failed_words = []
     for word in get_words(guess = False):
         s = Solver(word)
         best_word = ''
@@ -174,7 +176,8 @@ def test():
         while best_word != s.target:
             if n == 6:
                 record.append(0)
-                print(f'failed on {s.target}')
+                #print(f'failed on {s.target}')
+                failed_words.append(s.target)
                 break
             candidates = s.find_candidates(s.valid_words)
             let_dis = s.get_letter_distributions(candidates)
@@ -191,6 +194,7 @@ def test():
             num_tries.append(n)
     print(f'Record: {sum(record)/len(record)}')
     print(f'Number tries = {sum(num_tries)/len(num_tries)}')
+    return failed_words
 
 
 def solve(word):
@@ -206,10 +210,14 @@ def solve(word):
         let_dis = s.get_letter_distributions(candidates)
         best_word = s.find_best_word(let_dis, candidates, n)
         print(f'best_word at iteration {n} = {best_word}')
+
         s.letter_bank.update_letter_status(best_word)
         s.update_known_letters(best_word, s.target)
+        print(f'known letters: {s.known_letters}')
         s.update_letters_not_at_locus(best_word, s.target)
         s.update_guessed_words(best_word)
         n += 1
 
-solve('wrote')
+#solve('lucky')
+failures = test()
+[ solve(failure) for failure in failures]

@@ -36,7 +36,7 @@ class LetterBank:
             else:
                 self.letter_status[letter1] = 'gray'
 
-    def change_letter_status_based_on_guess(self, new_letter_information:dict):
+    def change_letter_status_based_on_guess(self, new_letter_information:dict) -> None:
         '''
         method that takes a dict with letter status info and manually updates letter status for those letters.
         This method is for when the target is unkown.
@@ -44,3 +44,5 @@ class LetterBank:
         :param new_letter_information:  Dict with letters keys and status values from a guess
         :return: None
         '''
+        for letter, status in new_letter_information.items():
+            self.letter_status[letter] = status

@@ -122,7 +122,7 @@ def main():
     def reset():
 
         global target_word
-        target_word = random.choice(tuple(valid_words))
+        target_word = random.choice(tuple(target_words))
         message_box.config(text=f"{user.capitalize()}'s Wordle \n\n")
         record_display.config(text=f"Win Percentage: {round(np.mean(record[user]['record']) * 100, 1)}")
         average_tries_display.config(text=f"   Average Tries:     {round(np.mean(record[user]['num_tries']), 1)}")
@@ -201,6 +201,8 @@ def main():
 
     valid_words = get_words(guess = True)
     target_words = get_words(guess = False)
+    print(valid_words == target_words)
+
     target_word = random.choice(tuple(target_words))
 
 
