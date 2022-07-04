@@ -12,6 +12,7 @@ import numpy as np
 from functools import partial
 import json
 from letters import LetterBank
+import solver
 
 guess_number = 0
 target_word = ''
@@ -139,8 +140,11 @@ def main():
         ttk.Button(frm, text="Reset", command=reset).grid(column=2, row=4)
 
         #reset letterbank:
-        try: letter_bank.reset(target=target_word)
-        except: print(letter_bank)
+        try:
+            letter_bank.reset(target=target_word)
+        except:
+            print(letter_bank)
+        hinter = solver.Solver(target_word, letter_bank)
         render_letter_bank('    ', letter_bank, letter_holder)
     def enter_word(*args):
 
@@ -186,9 +190,12 @@ def main():
     enter_word_partial = partial(enter_word, guess_number)
 
     def render_word(word, guess_number):
-        #global guess_number
+
         y_index = guess_number * 80
+        #tally letters:
+
         for index, (x_start, letter) in enumerate(zip(locations, word)):
+                #letter in right spot:
                 if letter == target_word[index]:
                     #draw a green rectangle
                     canvas.create_rectangle(x_start, y_index, x_start + 60, y_index + 60, fill = 'green', outline = 'white')
@@ -196,6 +203,40 @@ def main():
                     canvas.create_rectangle(x_start, y_index, x_start + 60, y_index + 60, fill='yellow', outline='white')
 
                 canvas.create_text((x_start + 30, y_index + 37), text=letter, font = ('Helvetica', 40), fill = 'black')
+
+    def get_colors(target_word:str, guess:str) ->list:
+        '''
+        TODO: returns a dict of indexes and colors
+        :param target_word:
+        :param guess:
+        :return:
+        '''
+        #initialize count dict of unmatched letters in target word
+        unmatched_letters = {}
+        letter_colors = [None for index in target_word]
+        if len(target_word) != len(guess):
+            return letter_colors
+
+        #loop through to find correct letters and count unmatched letters
+        for index, (guess_letter, target_letter) in enumerate(zip(guess, target_word)):
+            if guess_letter == target_letter:
+                letter_colors[index] = 'green'
+            else: #increment letter
+                unmatched_letters[target_letter] = unmatched_letters.get(target_letter, 0) + 1
+
+        #loop through to find letters in the wrong spot
+        for index, (guess_letter, target_letter) in enumerate(zip(guess, target_word)):
+            if guess_letter != target_letter:
+                if unmatched_letters.get(guess_letter):
+                    #letter in wrong spot, color yellow and decrement letter count
+                    letter_colors[index] = 'yellow'
+                    unmatched_letters[guess_letter] -= 1
+                else:
+                    #letter not in word color gray
+                    letter_colors[index] = 'gray'
+
+        return letter_colors
+
 
     #get the words
 
@@ -237,5 +278,6 @@ def main():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     main()
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
